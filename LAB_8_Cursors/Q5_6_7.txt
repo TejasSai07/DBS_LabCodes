@@ -1,0 +1,58 @@
+5) declare
+	cursor c1 is select gpa, grade from student for update;
+begin
+	for r in c1 loop
+		if r.gpa < 4.0 then
+			update student
+			set grade = 'F'
+			where current of c1;
+		elsif r.gpa < 5.0 then
+			update student
+			set grade = 'E'
+			where current of c1;
+		elsif r.gpa < 6.0 then
+			update student
+			set grade = 'D'
+			where current of c1;
+		elsif r.gpa < 7.0 then
+			update student
+			set grade = 'C'
+			where current of c1;
+		elsif r.gpa < 8.0 then
+			update student
+			set grade = 'B'
+			where current of c1;
+		elsif r.gpa < 9.0 then
+			update student
+			set grade = 'A'
+			where current of c1;
+		else
+			update student
+			set grade = 'A+'
+			where current of c1;
+		end if;
+	end loop;
+end;
+/
+
+6) declare
+	cursor c1(c takes.course_id%type) is select name from instructor natural join takes where course_id = c;
+	course takes.course_id%type;
+begin
+	course := '&course_id';
+	for r in c1(course) loop
+		dbms_output.put_line(to_char(r.name));
+	end loop;
+end;
+/
+
+7) declare
+	cursor c1(c takes.course_id%type) is select distinct(name) from student S, takes T, teaches Tt, advisor A where S.id = T.id and A.s_id = S.id and A.i_id = Tt.id;
+	co course.course_id%type;
+begin
+	co := '&co';
+	for r in c1(co) loop
+		dbms_output.put_line(to_char(r.name));
+	end loop;
+end;
+/
