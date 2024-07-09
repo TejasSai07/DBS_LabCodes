@@ -1,0 +1,54 @@
+1) declare
+	iid instructor.id%type;
+	rd salary_raise.rdate%type;
+	sal instructor.salary%type;
+	cursor c1 is select id, salary from instructor;
+begin
+	rd := to_date('&rd', 'dd-mm-yyyy');
+	open c1;
+		loop
+			fetch c1 into iid, sal;
+			exit when c1%notfound;
+			insert into salary_raise values(iid, rd, sal * 1.05);
+		end loop;
+	close c1;
+end;
+/
+
+2)declare
+	iid student.id%type;
+	nam student.name%type;
+	dnam student.dept_name%type;
+	tcred student.tot_cred%type;
+	cursor c1 is select id, name, dept_name, tot_cred from student order by tot_cred asc;
+begin
+	open c1;
+		while c1%rowcount < 10 loop
+			fetch c1 into iid, nam, dnam, tcred;
+			dbms_output.put_line(to_char(iid));
+		end loop;
+	close c1;
+end;
+/
+
+3)declare
+	cursor c1 is select course_id, count(id) as co from takes group by course_id;
+	counting int;
+	id course.course_id%type;
+begin
+	for r in c1 loop
+		dbms_output.put_line(to_char(r.course_id) || ' ' || to_char(r.co));
+	end loop;
+end;
+/
+
+4)declare
+	cursor c1 is select tot_cred from student natural join takes where course_id = 'CS-101' for update;
+begin
+	for r in c1 loop
+		if r.tot_cred < 30 then
+			delete from takes where current of c1;
+		end if;
+	end loop;
+end;
+/
