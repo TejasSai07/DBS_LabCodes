@@ -1,0 +1,67 @@
+1)
+create or replace procedure course_popular(dept in department.dept_name%type) as
+	cursor c1(d department.dept_name%type) is with enroll(cid, c) as (select course_id, count(id) from student natural join takes where dept_name = d group by course_id) select cid from enroll where c >= all( select c from enroll);
+begin
+	for r in c1(dept) loop
+		dbms_output.put_line(to_char(r.cid));
+	end loop;
+end;
+/
+
+2)
+create or replace procedure list(dept in department.dept_name%type) as
+	cursor c(d department.dept_name%type) is select distinct(name) as nam from student where dept_name = d;
+	cursor a(d department.dept_name%type) is select course_id from course where dept_name = d;
+begin
+	for r in c(dept) loop
+		dbms_output.put_line(to_char(r.nam));
+	end loop;
+	for r in a(dept) loop
+		dbms_output.put_line(to_char(r.course_id));
+	end loop;
+end;
+/
+
+3)
+create or replace function square(n in out int) return int as
+	ans int;
+begin
+	ans := n * n;
+	return ans;
+end;
+/
+
+declare
+	a int;
+begin
+	a := '&a';
+	a := square(a);
+	dbms_output.put_line(to_char(a));
+end;
+/
+
+4)
+create or replace function maximum(dept in department.dept_name%type) return int as
+	cursor c(d department.dept_name%type) is select salary from instructor where dept_name = d and salary >= all(select salary from instructor where dept_name = d);
+	ans int;
+begin
+	open c(dept);
+		fetch c into ans;
+	close c;
+	return ans;
+end;
+/
+create or replace procedure answer(dept department.dept_name%type) as
+	cursor c is select dept_name from department;
+	cursor c1(d department.dept_name%type, s instructor.salary%type) is select name from instructor I where I.dept_name = d and I.salary = s;
+	maxx int;
+begin
+	for r in c loop
+		maxx := maximum(dept);
+		for x in c1(r.dept_name, maxx) loop
+			dbms_output.put_line(to_char(x.name));
+		end loop;
+	end loop;
+end;
+/
+
